@@ -1,0 +1,69 @@
+*Documentation:*
+
+
+*The setup:*
+AWS Infrastructure Setup in Terraform:
+There is 4 folders: 
+1. terraform:
+-".gitignore" - with all parts that needed to be ignored (autontication and keys).
+-"terraform.lock.hcl" - file that maintained automatically by "terraform init"
+- "compute.tf" - all the settings for creating the computing tools (Ec2- with security group, igw, NAT, ALB- with security group and target group)
+- "creds.tf" - with all the secret items (variables as keys).
+- "main.tf" - all the basic configutation that required to built on them the other resourses (AWS as a provider, the choosen region to work on and the key pair to build EC2).
+- "network.tf" - VPC featuring subnts(2 private, 2 public) and EIP for NAT, route table for each compute resource addisonly, Security groups - to each resours.
+2. minickuber:
+- "nginx-deply.yml" that contain all the defintions to build a nginx app on port 80.
+3. container:
+- "DockerFile" - upload the latest version of nginx with the specific output. 
+- "nginx.conf" - all the required configuration for nginx app.
+4. '/terraform' - all the required configuration for terraform, created automaticlly. 
+
+*Deployment:*
+1. Network - all the resoure in the same Region and VPC. 
+             Egress - the EC2 server is in private subnet and its RT routing to the NAT (its SG used just ssh protocol -22 ), the NAT  inside the public subnet and its RT  routing to the IGW who connect to the wild network. 
+             Ingress - the IGW connect to ELB who balanced between the two public subnets and what inside them. its RT connect to the EC2 and Isolate it from the outside net (its SG used with http protocol - 80).     
+2. Instance - Ec2 mechin:  Linux Amazon mechine, t3.micro(free). 
+            - Inside the Ec2: The Node of MiniKube that deploy a Nginx Docker container.
+            - Files: yaml for doker nginx app node. 
+                     DokerFile with the latest version of Nginx and open poet 80.
+3. DNS - Configure a DNS name for the application - Google Public DNS- a free resoure.
+         
+*Process:*
+1. Executing the Terraform code:
+- divide files to 4 folder(as i expanded above).
+- create the work flow and write the code in following. 
+
+2. הורדת DESKTOP DOCKERHUB 
+הרצתו במחשב המקומי WINDOWS OS
+יצירת NGINX CONFIGURATION
+יצירת DOKERFILE  ל NGINX INAGE
+בניית הimage
+הרצת הIMAGE על פורט פתוח 
+"docker build -t my-nginx .
+docker run -p 8080:80 my-nginx"
+פתיחת הדף WEB במחשב המקומי. 
+העלאת השינויים לgit HUB
+
+
+לעבור על הכל במכונה שהקמתי.
+להוריד DOCKER 
+להפעיל את הdocker deamon
+להוסיף את הdockerfile and nginx.conf
+לבנות את ה IMAGE 
+ולהריץ את ה IMAGE  על OPRT פתוח 
+לבדוק אם האפילקציה עולה שם.
+
+
+-launching the application:*
+4. part four:
+-  Choose a unique Domain Name
+- Register the 'Google Domain'.
+- Configure DNS Records: Address Record - domain map to an IPv4 address (with the domain registrar's control panel ).
+- Point the DNS to the Server(IP address) - the ALB Nginx. 
+- Configure Web Server - updating the Nginx configuration file (nginx.conf). 
+- SSL/TLS Configuration certificate the domain - to secure the Nginx application with HTTPS.
+
+
+
+
+
