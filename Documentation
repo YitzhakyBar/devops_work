@@ -1,0 +1,95 @@
+*Documentation:*
+
+
+*The setup:*
+AWS Infrastructure Setup in Terraform:
+There is 4 folders: 
+1. terraform:
+-".gitignore" - with all parts that needed to be ignored (autontication and keys).
+-"terraform.lock.hcl" - file that maintained automatically by "terraform init"
+- "compute.tf" - all the settings for creating the computing tools (Ec2- with security group, igw, NAT, ALB- with security group and target group)
+- "creds.tf" - with all the secret items (variables as keys).
+- "main.tf" - all the basic configutation that required to built on them the other resourses (AWS as a provider, the choosen region to work on and the key pair to build EC2).
+- "network.tf" - VPC featuring subnts(2 private, 2 public) and EIP for NAT, route table for each compute resource addisonly, Security groups - to each resours.
+2. minickuber:
+- "nginx-deply.yml" that contain all the defintions to build a nginx app on port 80.
+3. container:
+- "DockerFile" - upload the latest version of nginx with the specific output. 
+- "nginx.conf" - all the required configuration for nginx app.
+4. '/terraform' - all the required configuration for terraform, created automaticlly. 
+
+*Deployment:*
+1. Network - all the resoure in the same Region and VPC. 
+             Egress - the EC2 server is in private subnet and its RT routing to the NAT (its SG used just ssh protocol -22 ), the NAT  inside the public subnet and its RT  routing to the IGW who connect to the wild network. 
+             Ingress - the IGW connect to ELB who balanced between the two public subnets and what inside them. its RT connect to the EC2 and Isolate it from the outside net (its SG used with http protocol - 80).     
+2. Instance - Ec2 mechin:  Linux Amazon mechine, t3.micro(free). 
+            - Inside the Ec2: The Node of MiniKube that deploy a Nginx Docker container.
+            - Files: yaml for doker nginx app node. 
+                     DokerFile with the latest version of Nginx and open poet 80.
+
+2. minickuber:
+- "nginx-deply.yml" that contain all the defintions to build a nginx app on port 80.
+3. container:
+- "DockerFile" - upload the latest version of nginx with the specific output. 
+- "nginx.conf" - all the required configuration for nginx app.
+4. '/terraform' - all the required configuration for terraform, created automaticlly. 
+
+*Deployment:*
+1. Network - all the resoure in the same Region and VPC. 
+             Egress - the EC2 server is in private subnet and its RT routing to the NAT (its SG used just ssh protocol -22 ), the NAT  inside the public subnet and its RT  routing to the IGW who connect to the wild network. 
+             Ingress - the IGW connect to ELB who balanced between the two public subnets and what inside them. its RT connect to the EC2 and Isolate it from the outside net (its SG used with http protocol - 80).     
+2. Instance - Ec2 mechin:  Linux Amazon mechine, t3.micro(free). 
+            - Inside the Ec2: The Node of MiniKube that deploy a Nginx Docker container.
+            - Files: yaml for doker nginx app node. 
+                     DokerFile with the latest version of Nginx and open poet 80.
+3. DNS - Configure a DNS name for the application - Google Public DNS- a free resoure.
+         
+*Process:*
+1. Executing the Terraform code:
+- Divide files to 4 folder(as i expanded above).
+- Create the work flow and write the code in following. 
+- Deploy the Terraform code - "terraform" + "init" - "fmt" - "validate" - "plan" and then "apply".  
+
+2.Docker Containerization:
+Dockerize NGINX and configure it to respond with the text "yo this is nginx" upon access:
+
+A: First, execution all on my local mechine. 
+
+- Download DOCKERHUB desktop
+- Run DockerHub Desktop on the local mechine - Windows OS. 
+- Create Nginx configuration.
+- Create DockerFile.
+- Build Doker Image on top the DockerFile. "docker build -t my-nginx ."
+- Run the new Image in port 80. "docker run -p 8080:80 my-nginx""
+- Open the browser on the new address. "http://localhost:8080"
+- Synchronize the changes on GitHub. 
+
+B. Secoend, execution all on the AWS infrastructure: 
+- Download Dokcer.
+- Start 'docker deamon'. "systemctl"
+- Add the Dockerfile and the Nginx.conf.
+- Build Doker Image on top the DockerFile. 
+- Run the new Image in port 80. "docker run -p 8080:80 my-nginx""
+- Open the browser on the new address. "http:/ALB-IP:8080"
+
+3. Kubernetes Deployment:
+- Install Minikube cluster and start it "minikube start" (create a VM).
+-  NGINX Docker image - Navigate the DokerFile to the same directory and run the Image. 
+- Deploy NGINX to Minikube - Create YAML configuration file.
+- Apply the deployment to your Minikube cluster "kubectl apply -f nginx-deployment.yaml"
+-  Expose NGINX Service " kubectl expose deployment nginx-deployment --type=NodePort --port=80 "
+- Get Minikube IP and Port - "minikube ip", "kubectl get services". 
+- Access NGINX in the web browser  or "curl http://<minikube-ip>:<nodeport>"
+
+4. Public Access:
+-  Choose a unique Domain Name
+- Register the 'Google Domain'.
+- Configure DNS Records: Address Record - domain map to an IPv4 address (with the domain registrar's control panel ).
+- Point the DNS to the Server(IP address) - the ALB Nginx. 
+- Configure Web Server - updating the Nginx configuration file (nginx.conf). 
+- SSL/TLS Configuration certificate the domain - to secure the Nginx application with HTTPS.
+
+
+
+
+
